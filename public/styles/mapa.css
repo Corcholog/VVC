@@ -8,6 +8,9 @@ a {
     
 }
 
+#map {
+    border-radius: 7px;
+}
 
 nav {
     height: 50px;
@@ -24,6 +27,10 @@ nav {
     margin: 10px 10px 0 10px;
     box-shadow: 2px 2px 5px black;
     border-radius: 7px;
+}
+
+#logo {
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .nav_item_r {
