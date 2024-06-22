@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "consulta": "node scripts/postgresqp.js",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,6 +16,7 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "mapbox-gl": "^3.4.0"
+    "mapbox-gl": "^3.4.0",
+    "pg": "^8.12.0"
   }
 }

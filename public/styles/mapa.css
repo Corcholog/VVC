@@ -1,33 +1,109 @@
+body {
+    background-color: 	#b8d8be;
+}
+a {
+    color: black;
+    text-decoration: none;
+    
+    
+}
+
+
+nav {
+    height: 50px;
+    width: 100%;
+    background-color: #87bd91;
+    box-shadow: 5px 5px 10px black;
+}
+.nav_item_l {
+    background-color: #ffe599;
+    display: inline;
+    float: left;
+    border: 1px black solid;
+    padding: 5px 5px;
+    margin: 10px 10px 0 10px;
+    box-shadow: 2px 2px 5px black;
+    border-radius: 7px;
+}
+
+.nav_item_r {
+    background-color: #ffe599;
+    display: inline;
+    float: right;
+    border: 1px black solid;
+    padding: 5px 5px;
+    margin: 10px 10px 0 10px;
+    box-shadow: 2px 2px 5px black;
+    border-radius: 7px;
+}
+
+#query {
+    font-size: 18px;
+    width: 66%;
+    margin-bottom: 5px;
+}
+
 .imagen {
     background-size: contain;
     width: 100%;
     height: 100%;
 }
 
-.boton_img {
-
-}
 
 #lista_prod {
     list-style-type: none;
     padding-left: 0;
+
 }
 
 
 #seccion_productos {
     overflow-y: scroll;
-    float: right; 
-    background-color: #007272;
+    float: right;
+    background-color: #809785;
     width: 25%;
     height: 720px;
     margin-left: 2.5%;
     margin-right: 2.5%;
+    box-shadow: 5px 5px 10px black;
+    border-radius: 7px 0px;
 }
+
+/* Estilo para navegadores basados en Webkit (Chrome, Safari, etc.) */
+#seccion_productos::-webkit-scrollbar {
+    width: 12px; /* Ancho de la barra de desplazamiento */
+}
+
+#seccion_productos::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1); /* Fondo de la pista de la barra de desplazamiento */
+}
+
+#seccion_productos::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.5); /* Fondo de la barra de desplazamiento (opaca) */
+    border-radius: 6px; /* Radio de borde para una apariencia redondeada */
+}
+
+#seccion_productos::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.7); /* Fondo de la barra de desplazamiento al pasar el ratón (más opaca) */
+}
+
+/* Estilo para Firefox */
+#seccion_productos {
+    scrollbar-width: thin; /* Ancho de la barra de desplazamiento */
+    scrollbar-color: rgba(0, 0, 0, 0.5) rgba(0, 0, 0, 0.1); /* Color de la barra y de la pista de desplazamiento */
+}
+
 
 .elem_prod_li {
     text-align: center;
     border: 3px black solid;
-    background-color: burlywood;
+    background-color: #ffe599;
     margin: 10px auto;
     width: 70%;
+    border-radius: 7px 7px;
+}
+
+.elem_prod_li:hover{
+    box-shadow: 5px 5px 10px black;
+    transition: box-shadow 250ms ease-in-out;
 }
