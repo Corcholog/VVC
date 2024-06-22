@@ -1,0 +1,285 @@
+-- Table: public.Local
+
+-- DROP TABLE IF EXISTS public."Local";
+
+CREATE TABLE IF NOT EXISTS public."Local"
+(
+    id_local serial NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    latitud double precision NOT NULL,
+    longitud double precision NOT NULL,
+    red_social character varying COLLATE pg_catalog."default",
+    promedio double precision,
+    direccion character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Local_pkey" PRIMARY KEY (id_local)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Local"
+    OWNER to postgres;
+
+
+
+
+-------------------------------------------------------------------------------------------------------
+
+-- Table: public.Local_vendedor
+
+-- DROP TABLE IF EXISTS public."Local_vendedor";
+
+CREATE TABLE IF NOT EXISTS public."Local_vendedor"
+(
+    id_user serial NOT NULL,
+    id_local serial NOT NULL,
+    CONSTRAINT "Local_vendedor_pkey" PRIMARY KEY (id_user, id_local),
+    CONSTRAINT "Local_vendedor_id_local_fkey" FOREIGN KEY (id_local)
+        REFERENCES public."Local" (id_local) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Local_vendedor_id_user_fkey" FOREIGN KEY (id_user)
+        REFERENCES public."Usuario_vendedor" (id_vendedor) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Local_vendedor"
+    OWNER to postgres;
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+-- Table: public.Prod_m_local
+
+-- DROP TABLE IF EXISTS public."Prod_m_local";
+
+CREATE TABLE IF NOT EXISTS public."Prod_m_local"
+(
+    id_prod serial NOT NULL,
+    id_local serial NOT NULL,
+    CONSTRAINT "Prod_m_local_pkey" PRIMARY KEY (id_prod, id_local),
+    CONSTRAINT "Prod_m_local_id_local_fkey" FOREIGN KEY (id_local)
+        REFERENCES public."Local" (id_local) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Prod_m_local_id_prod_fkey" FOREIGN KEY (id_prod)
+        REFERENCES public."Producto_manufacturado" (id_prod) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Prod_m_local"
+    OWNER to postgres;
+
+
+
+
+---------------------------------------------------------------------------------------
+
+
+-- Table: public.Producto
+
+-- DROP TABLE IF EXISTS public."Producto";
+
+CREATE TABLE IF NOT EXISTS public."Producto"
+(
+    id serial NOT NULL,
+    name character varying COLLATE pg_catalog."default" NOT NULL,
+    foto character varying COLLATE pg_catalog."default" NOT NULL,
+    tipo "char" NOT NULL,
+    vegetariano boolean NOT NULL,
+    vegano boolean NOT NULL,
+    celiaco boolean NOT NULL,
+    stock integer,
+    precio double precision,
+    ult_actualizacion date,
+    promedio double precision NOT NULL,
+    CONSTRAINT "Producto_pkey" PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Producto"
+    OWNER to postgres;
+
+
+----------------------------------------------------------------------------------
+
+-- Table: public.Producto_Artesanal
+
+-- DROP TABLE IF EXISTS public."Producto_Artesanal";
+
+CREATE TABLE IF NOT EXISTS public."Producto_Artesanal"
+(
+    id_prod serial NOT NULL,
+    id_local serial NOT NULL,
+    CONSTRAINT "Producto_Artesanal_pkey" PRIMARY KEY (id_prod),
+    CONSTRAINT "Producto_Artesanal_id_local_fkey" FOREIGN KEY (id_local)
+        REFERENCES public."Local" (id_local) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Producto_Artesanal_id_prod_fkey" FOREIGN KEY (id_prod)
+        REFERENCES public."Producto" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Producto_Artesanal"
+    OWNER to postgres;
+
+
+
+--------------------------------------------------------------------------------------
+
+-- Table: public.Producto_manufacturado
+
+-- DROP TABLE IF EXISTS public."Producto_manufacturado";
+
+CREATE TABLE IF NOT EXISTS public."Producto_manufacturado"
+(
+    id_prod serial NOT NULL,
+    CONSTRAINT id_prof PRIMARY KEY (id_prod),
+    CONSTRAINT id_prod FOREIGN KEY (id_prod)
+        REFERENCES public."Producto" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Producto_manufacturado"
+    OWNER to postgres;
+
+-----------------------------------------------------------------------------------------------
+
+-- Table: public.Reseña_Producto
+
+-- DROP TABLE IF EXISTS public."Reseña_Producto";
+
+CREATE TABLE IF NOT EXISTS public."Reseña_Producto"
+(
+    id_user serial NOT NULL,
+    id_producto serial NOT NULL,
+    valoracion integer NOT NULL,
+    comentario character varying COLLATE pg_catalog."default",
+    CONSTRAINT "Reseña_Producto_pkey" PRIMARY KEY (id_user, id_producto),
+    CONSTRAINT "Reseña_Producto_id_producto_fkey" FOREIGN KEY (id_producto)
+        REFERENCES public."Producto" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Reseña_Producto_id_user_fkey" FOREIGN KEY (id_user)
+        REFERENCES public."Usuario_Consumidor" (id_user) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Reseña_Producto"
+    OWNER to postgres;
+
+
+----------------------------------------------------------------------------------------
+
+-- Table: public.Reseña_local
+
+-- DROP TABLE IF EXISTS public."Reseña_local";
+
+CREATE TABLE IF NOT EXISTS public."Reseña_local"
+(
+    id_user serial NOT NULL,
+    id_local serial NOT NULL,
+    valoracion double precision NOT NULL,
+    comentario character varying COLLATE pg_catalog."default",
+    CONSTRAINT "reseña_local_pkey" PRIMARY KEY (id_user, id_local),
+    CONSTRAINT "reseña_local_id_local_fkey" FOREIGN KEY (id_local)
+        REFERENCES public."Local" (id_local) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "reseña_local_id_user_fkey" FOREIGN KEY (id_user)
+        REFERENCES public."Usuario_Consumidor" (id_user) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Reseña_local"
+    OWNER to postgres;
+
+-----------------------------------------------------------------------------------
+
+-- Table: public.Usuario
+
+-- DROP TABLE IF EXISTS public."Usuario";
+
+CREATE TABLE IF NOT EXISTS public."Usuario"
+(
+    id serial NOT NULL,
+    name character varying COLLATE pg_catalog."default" NOT NULL,
+    password character varying COLLATE pg_catalog."default" NOT NULL,
+    fecha_nacimiento date,
+    email character varying COLLATE pg_catalog."default" NOT NULL,
+    nmro_telefono bigint,
+    direccion character varying COLLATE pg_catalog."default",
+    CONSTRAINT "Usuario_pkey" PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Usuario"
+    OWNER to postgres;
+
+
+------------------------------------------------------------------------------------------
+
+-- Table: public.Usuario_Consumidor
+
+-- DROP TABLE IF EXISTS public."Usuario_Consumidor";
+
+CREATE TABLE IF NOT EXISTS public."Usuario_Consumidor"
+(
+    id_user serial NOT NULL,
+    vegetarian boolean NOT NULL,
+    vegan boolean NOT NULL,
+    celiac boolean NOT NULL,
+    CONSTRAINT "Usuario_Consumidor_pkey" PRIMARY KEY (id_user),
+    CONSTRAINT "idUser" FOREIGN KEY (id_user)
+        REFERENCES public."Usuario" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Usuario_Consumidor"
+    OWNER to postgres;
+
+
+------------------------------------------------------------------------------------------
+
+-- Table: public.Usuario_vendedor
+
+-- DROP TABLE IF EXISTS public."Usuario_vendedor";
+
+CREATE TABLE IF NOT EXISTS public."Usuario_vendedor"
+(
+    id_vendedor serial NOT NULL,
+    dni bigint NOT NULL,
+    CONSTRAINT "Usuario_vendedor_pkey" PRIMARY KEY (id_vendedor),
+    CONSTRAINT id_vendedor FOREIGN KEY (id_vendedor)
+        REFERENCES public."Usuario" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Usuario_vendedor"
+    OWNER to postgres;
