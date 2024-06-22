@@ -1,42 +1,25 @@
-const http = require('http')
-const fs = require('fs');
+const express = require('express');
 const path = require('path');
+const app = express();
 
-const server = http.createServer((req, res) => {
+// Middleware para servir archivos estáticos desde la carpeta 'public'
+app.use(express.static(path.join(__dirname, '/public')));
 
-    if(req.url === "/"){
-        res.write("WElcome")
-        return res.end();
-    }
+// Rutas
+app.get('/', (req, res) => {
+    res.send("Welcome");
+});
 
-    if (req.url === "/Home") {
-        const filePath = path.join(__dirname, 'home.html');
-        fs.readFile(filePath, (err, content) => {
-            if (err) {
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.write("Server Error");
-                return res.end();
-            }
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.write(content);
-            return res.end();
-        });
-    }
-    if (req.url === "/Mapa") {
-        const filePath = path.join(__dirname, 'mapa.html');
-        fs.readFile(filePath, (err, content) => {
-            if (err) {
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.write("Server Error");
-                return res.end();
-            }
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.write(content);
-            return res.end();
-        });
-    }
+app.get('/Home', (req, res) => {
+    res.sendFile(path.join(__dirname, 'home.html'));
+});
 
-})
+app.get('/Mapa', (req, res) => {
+    res.sendFile(path.join(__dirname, 'mapa.html'));
+});
 
-server.listen(3000)
-console.log("Ruge, puta!")
+// Servidor escuchando en el puerto 3000
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log("Ruge, puta!");
+});

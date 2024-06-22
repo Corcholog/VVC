@@ -4,12 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    
+    <link rel="stylesheet" href="/styles/mapa.css">
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css' rel='stylesheet' />
+    <script>
+        function getProducts(){
+            let l1 = {
+                id_local : 1,
+                nombre : "Paqui vegan",
+                direccion : "Las Heras 1550",
+                latitud : -37.31462408093658,
+                longitud : -59.126362262363045,
+            }
+            let l2 = {
+                id_local : 2,
+                nombre : "Corcho vegan",
+                direccion : "Muñoz 1260",
+                latitud : -37.309305997824744, 
+                longitud : -59.16011427136577,
+            }
+            
+            let p1 = {
+                id : 1,
+                name : "Pan de coco",
+                pic: "perro.jpg",
+                vegetariano: true,
+                vegano: true,
+                celiaco: false,
+                stock : 100,
+                precio : 2500,
+                promedio : 4,
+                locales : [l1, l1, l1, l1],
+            }
+            let p2 = {
+                id : 2,
+                name : "Hamburguesa de lentejas",
+                pic: "perra.jpg",
+                vegetariano: true,
+                vegano: true,
+                celiaco: false,
+                stock : 100,
+                precio : 5000,
+                promedio : 5,
+                locales : [l2],
+            }
+            return [p1, p2, p1]
+        }
+
+        function createMarker(long, lat){
+            return marker = new mapboxgl.Marker()
+            .setLngLat([long, lat])
+        }
+
+        function add_markers(products){
+            let markers = [];
+            products.forEach(p => {
+                p.locales.forEach(local => {
+                    marker = createMarker(local.longitud, local.latitud)
+                    marker.addTo(map)
+                    marker.setPopup(new mapboxgl.Popup().setHTML("<h3>" + local.nombre +"!</h3>" + "<h4>" + local.direccion + "</h4>"))
+                    markers.push(marker);
+
+                });
+            });
+            return markers;
+        }
+    </script>
 </head>
 <body>
-    <div id='map' style='width: 1280px; height: 720px;'></div>
+    
+    <div>
+        <h3>Buscar producto</h3>
+        <form id="searchForm">
+            <input type="text" id="query" name="query" placeholder="Ingrese el nombre del producto" />
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+    
+    <section id="seccion_productos">
+        <h3 style="background-color: antiquewhite; text-align: center;">Productos</h3>
+        <ul id="lista_prod">
+        </ul>
+        <script>
+                
+            document.getElementById('searchForm').addEventListener('submit', function(event) {
+                event.preventDefault(); // Evita que el formulario se envíe de manera tradicional
+                let query = document.getElementById('query').value; // Obtiene el valor del campo de entrada
+                var datos = document.getElementById('lista_prod');
+                datos.innerHTML = '';
+                getProducts().forEach(p => {
+                    if(p.locales.length == 1){
+                        boton = '<Button type="button">' + p.locales[0].nombre + '</Button> <br>' 
+                        datos.innerHTML += '<li class="elem_prod_li">'+ '<p>' + p.name +'</p>'+ '<img class="imagen" src="/img/' + p.id + '.jpg"/>' + boton +'</li>';
+                    }
+                    else {
+                        var lista_locales = '<ul id="lista_prod">'
+                        p.locales.forEach(element => {
+                            lista_locales += '<Button type="button">' + p.locales[0].nombre + '</Button> <br>' 
+                        });
+                        lista_locales += '</ul>'
+                        datos.innerHTML += '<li class="elem_prod_li">'+ '<p>' + p.name +'</p>'+ '<img class="imagen" src="/img/' + p.id + '.jpg"/>' + lista_locales +'</li>';
+                    }
+                });
+            });
+        </script>
+    </section>
+
+    <div id='map' style='width:70%; height: 720px;'></div>
     <script>
         let lat = -37.32100277545416;
         let long = -59.1348577718957;
@@ -20,10 +121,16 @@
             center: [long, lat], // starting position [lng, lat], 
             zoom: 13, // starting zoom
         });
-        // Create a new marker.
-        const marker = new mapboxgl.Marker()
-            .setLngLat([long, lat])
-            .addTo(map);
+
+        let current_products = [];
+        console.log(getProducts())
+        current_products = getProducts();
+        let current_markers = add_markers(current_products);
+
+
+        
+
+        
     </script>
     
 </body>
