@@ -1,0 +1,82 @@
+-- FUNCTION: public.get_productos_por_nombre(character varying)
+
+-- DROP FUNCTION IF EXISTS public.get_productos_por_nombre(character varying);
+
+CREATE OR REPLACE FUNCTION public.get_productos_por_nombre(
+	nombre_producto character varying)
+    RETURNS TABLE(id_p integer, nickname character varying, foto character varying, tipo character, vegetariano boolean, vegano boolean, celiaco boolean, stock integer, precio double precision, ult_actualizacion date, promedio double precision, id_local integer) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        vp.id,
+        vp.name::character varying AS nickname,
+        vp.foto::character varying,
+        vp.tipo::character,
+        vp.vegetariano,
+        vp.vegano,
+        vp.celiaco,
+        vp.stock,
+        vp.precio,
+        vp.ult_actualizacion,
+        vp.promedio,
+        vp.id_local
+    FROM vista_productos_locales vp
+    WHERE lower(vp.name) LIKE  '%' || lower(nombre_producto) || '%';
+END;
+$BODY$;
+
+ALTER FUNCTION public.get_productos_por_nombre(character varying)
+    OWNER TO postgres;
+
+-- View: public.vista_productos_locales
+
+DROP VIEW public.vista_productos_locales;
+
+CREATE OR REPLACE VIEW public.vista_productos_locales
+ AS
+ SELECT p.id,
+    p.name,
+    p.foto,
+    p.tipo,
+    p.vegetariano,
+    p.vegano,
+    p.celiaco,
+    p.stock,
+    p.precio,
+    p.ult_actualizacion,
+    p.promedio as prod_prom,
+    lv.*
+   FROM "Producto" p
+     JOIN "Producto_Artesanal" pa ON p.id = pa.id_prod JOIN "Local" lv ON lv.id_local = pa.id_local
+UNION ALL
+ SELECT p.id,
+    p.name,
+    p.foto,
+    p.tipo,
+    p.vegetariano,
+    p.vegano,
+    p.celiaco,
+    p.stock,
+    p.precio,
+    p.ult_actualizacion,
+    p.promedio as prod_prom,
+    l.*
+   FROM "Producto" p
+     JOIN "Producto_manufacturado" pm ON p.id = pm.id_prod
+     JOIN "Prod_m_local" pml ON pm.id_prod = pml.id_prod
+	 JOIN "Local" l ON l.id_local = pml.id_local;
+
+ALTER TABLE public.vista_productos_locales
+    OWNER TO postgres;
+
+SELECT * FROM vista_productos_locales;
+
+
+
+
