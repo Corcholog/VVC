@@ -1,0 +1,690 @@
+-- Table: public.Local
+
+-- DROP TABLE IF EXISTS public."Local";
+
+CREATE TABLE IF NOT EXISTS public."Local"
+(
+    id_local serial NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    latitud double precision NOT NULL,
+    longitud double precision NOT NULL,
+    red_social character varying COLLATE pg_catalog."default",
+    promedio double precision,
+    direccion character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Local_pkey" PRIMARY KEY (id_local)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Local"
+    OWNER to postgres;
+
+
+
+----------------------------------------------------------------------------------
+
+-- Table: public.Producto
+
+-- DROP TABLE IF EXISTS public."Producto";
+
+CREATE TABLE IF NOT EXISTS public."Producto"
+(
+    id serial NOT NULL,
+    name character varying COLLATE pg_catalog."default" NOT NULL,
+    foto character varying COLLATE pg_catalog."default" NOT NULL,
+    tipo "char" NOT NULL,
+    vegetariano boolean NOT NULL,
+    vegano boolean NOT NULL,
+    celiaco boolean NOT NULL,
+    stock integer,
+    precio double precision,
+    ult_actualizacion date,
+    promedio double precision NOT NULL,
+    CONSTRAINT "Producto_pkey" PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Producto"
+    OWNER to postgres;
+
+
+-----------------------------------------------------------------------------------------
+
+
+-- Table: public.Producto_Artesanal
+
+-- DROP TABLE IF EXISTS public."Producto_Artesanal";
+
+CREATE TABLE IF NOT EXISTS public."Producto_Artesanal"
+(
+    id_prod serial NOT NULL,
+    id_local serial NOT NULL,
+    CONSTRAINT "Producto_Artesanal_pkey" PRIMARY KEY (id_prod),
+    CONSTRAINT "Producto_Artesanal_id_local_fkey" FOREIGN KEY (id_local)
+        REFERENCES public."Local" (id_local) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Producto_Artesanal_id_prod_fkey" FOREIGN KEY (id_prod)
+        REFERENCES public."Producto" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Producto_Artesanal"
+    OWNER to postgres;
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------
+-- Table: public.Producto_manufacturado
+
+-- DROP TABLE IF EXISTS public."Producto_manufacturado";
+
+CREATE TABLE IF NOT EXISTS public."Producto_manufacturado"
+(
+    id_prod serial NOT NULL,
+    CONSTRAINT id_prof PRIMARY KEY (id_prod),
+    CONSTRAINT id_prod FOREIGN KEY (id_prod)
+        REFERENCES public."Producto" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Producto_manufacturado"
+    OWNER to postgres;
+
+
+-------------------------------------------------------------------------
+
+
+
+-- Table: public.Prod_m_local
+
+-- DROP TABLE IF EXISTS public."Prod_m_local";
+
+CREATE TABLE IF NOT EXISTS public."Prod_m_local"
+(
+    id_prod serial NOT NULL,
+    id_local serial NOT NULL,
+    CONSTRAINT "Prod_m_local_pkey" PRIMARY KEY (id_prod, id_local),
+    CONSTRAINT "Prod_m_local_id_local_fkey" FOREIGN KEY (id_local)
+        REFERENCES public."Local" (id_local) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Prod_m_local_id_prod_fkey" FOREIGN KEY (id_prod)
+        REFERENCES public."Producto_manufacturado" (id_prod) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Prod_m_local"
+    OWNER to postgres;
+
+--------------------------------------------------------------------------------
+
+
+-- Table: public.Usuario
+
+-- DROP TABLE IF EXISTS public."Usuario";
+
+CREATE TABLE IF NOT EXISTS public."Usuario"
+(
+    id serial NOT NULL,
+    name character varying COLLATE pg_catalog."default" NOT NULL,
+    password character varying COLLATE pg_catalog."default" NOT NULL,
+    fecha_nacimiento date,
+    email character varying COLLATE pg_catalog."default" NOT NULL,
+    nmro_telefono bigint,
+    direccion character varying COLLATE pg_catalog."default",
+    CONSTRAINT "Usuario_pkey" PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Usuario"
+    OWNER to postgres;
+
+
+-----------------------------------------------------------------------------------
+
+
+
+
+
+-- Table: public.Usuario_Consumidor
+
+-- DROP TABLE IF EXISTS public."Usuario_Consumidor";
+
+CREATE TABLE IF NOT EXISTS public."Usuario_Consumidor"
+(
+    id_user serial NOT NULL,
+    vegetarian boolean NOT NULL,
+    vegan boolean NOT NULL,
+    celiac boolean NOT NULL,
+    CONSTRAINT "Usuario_Consumidor_pkey" PRIMARY KEY (id_user),
+    CONSTRAINT "idUser" FOREIGN KEY (id_user)
+        REFERENCES public."Usuario" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Usuario_Consumidor"
+    OWNER to postgres;
+
+
+-------------------------------------------------------------------------------------------------------
+
+
+-- Table: public.Usuario_vendedor
+
+-- DROP TABLE IF EXISTS public."Usuario_vendedor";
+
+CREATE TABLE IF NOT EXISTS public."Usuario_vendedor"
+(
+    id_vendedor serial NOT NULL,
+    dni bigint NOT NULL,
+    CONSTRAINT "Usuario_vendedor_pkey" PRIMARY KEY (id_vendedor),
+    CONSTRAINT id_vendedor FOREIGN KEY (id_vendedor)
+        REFERENCES public."Usuario" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Usuario_vendedor"
+    OWNER to postgres;
+
+--------------------------------------------------------------------------------------------------------
+
+
+
+-- Table: public.Local_vendedor
+
+-- DROP TABLE IF EXISTS public."Local_vendedor";
+
+CREATE TABLE IF NOT EXISTS public."Local_vendedor"
+(
+    id_user serial NOT NULL,
+    id_local serial NOT NULL,
+    CONSTRAINT "Local_vendedor_pkey" PRIMARY KEY (id_user, id_local),
+    CONSTRAINT "Local_vendedor_id_local_fkey" FOREIGN KEY (id_local)
+        REFERENCES public."Local" (id_local) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Local_vendedor_id_user_fkey" FOREIGN KEY (id_user)
+        REFERENCES public."Usuario_vendedor" (id_vendedor) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Local_vendedor"
+    OWNER to postgres;
+------------------------------------------------------------------------------------------------------------
+
+
+
+
+-- Table: public.Reseña_Producto
+
+-- DROP TABLE IF EXISTS public."Reseña_Producto";
+
+CREATE TABLE IF NOT EXISTS public."Reseña_Producto"
+(
+    id_user serial NOT NULL,
+    id_producto serial NOT NULL,
+    valoracion integer NOT NULL,
+    comentario character varying COLLATE pg_catalog."default",
+    CONSTRAINT "Reseña_Producto_pkey" PRIMARY KEY (id_user, id_producto),
+    CONSTRAINT "Reseña_Producto_id_producto_fkey" FOREIGN KEY (id_producto)
+        REFERENCES public."Producto" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Reseña_Producto_id_user_fkey" FOREIGN KEY (id_user)
+        REFERENCES public."Usuario_Consumidor" (id_user) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Reseña_Producto"
+    OWNER to postgres;
+
+
+
+-------------------------------------------------------------------------------------------------------------------------
+
+
+
+-- Table: public.Reseña_local
+
+-- DROP TABLE IF EXISTS public."Reseña_local";
+
+CREATE TABLE IF NOT EXISTS public."Reseña_local"
+(
+    id_user serial NOT NULL,
+    id_local serial NOT NULL,
+    valoracion double precision NOT NULL,
+    comentario character varying COLLATE pg_catalog."default",
+    CONSTRAINT "reseña_local_pkey" PRIMARY KEY (id_user, id_local),
+    CONSTRAINT "reseña_local_id_local_fkey" FOREIGN KEY (id_local)
+        REFERENCES public."Local" (id_local) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "reseña_local_id_user_fkey" FOREIGN KEY (id_user)
+        REFERENCES public."Usuario_Consumidor" (id_user) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Reseña_local"
+    OWNER to postgres;
+
+--------------VISTAS----------------------
+
+-- View: public.vista_lugares
+
+-- DROP VIEW public.vista_lugares;
+
+CREATE OR REPLACE VIEW public.vista_lugares
+ AS
+ SELECT pa.id_prod,
+    pa.id_local
+   FROM "Producto_Artesanal" pa
+     JOIN "Local" l ON pa.id_local = l.id_local
+UNION ALL
+ SELECT pm.id_prod,
+    pm.id_local
+   FROM "Prod_m_local" pm;
+
+ALTER TABLE public.vista_lugares
+    OWNER TO postgres;
+
+
+------------------------------------
+
+-- View: public.vista_productos_locales
+
+-- DROP VIEW public.vista_productos_locales;
+
+CREATE OR REPLACE VIEW public.vista_productos_locales
+ AS
+ SELECT p.id,
+    p.name,
+    p.foto,
+    p.tipo,
+    p.vegetariano,
+    p.vegano,
+    p.celiaco,
+    p.stock,
+    p.precio,
+    p.ult_actualizacion,
+    p.promedio,
+    pa.id_local
+   FROM "Producto" p
+     JOIN "Producto_Artesanal" pa ON p.id = pa.id_prod
+UNION ALL
+ SELECT p.id,
+    p.name,
+    p.foto,
+    p.tipo,
+    p.vegetariano,
+    p.vegano,
+    p.celiaco,
+    p.stock,
+    p.precio,
+    p.ult_actualizacion,
+    p.promedio,
+    pml.id_local
+   FROM "Producto" p
+     JOIN "Producto_manufacturado" pm ON p.id = pm.id_prod
+     JOIN "Prod_m_local" pml ON pm.id_prod = pml.id_prod;
+
+ALTER TABLE public.vista_productos_locales
+    OWNER TO postgres;
+
+
+
+
+-----------------------Trigers-----------------
+
+--- FUNCTION: public.actualizar_promedio_local()
+
+-- DROP FUNCTION IF EXISTS public.actualizar_promedio_local();
+
+CREATE OR REPLACE FUNCTION public.actualizar_promedio_local()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+DECLARE
+    total_valoraciones double precision;
+    cantidad_resenas integer;
+    promedio_actual double precision;
+BEGIN
+	IF (TG_OP = 'INSERT') THEN
+	
+	    -- Obtener la suma total de las valoraciones y la cantidad de resenas para el id_local
+	    SELECT SUM(valoracion), COUNT(*)
+	    INTO total_valoraciones, cantidad_resenas
+	    FROM public."Reseña_local"
+	    WHERE id_local = NEW.id_local; -- NEW.id_local es el id_local de la nueva resena
+	    
+	    -- Calcular el promedio
+	    IF cantidad_resenas > 0 THEN
+	        promedio_actual := total_valoraciones / cantidad_resenas;
+	    ELSE
+	        promedio_actual := 0; -- Evitar división por cero si no hay resenas aún
+	    END IF;
+	    
+	    -- Actualizar el promedio en la tabla Local
+	    UPDATE public."Local"
+	    SET promedio = promedio_actual
+	    WHERE id_local = NEW.id_local; -- Actualizar solo la fila correspondiente al id_local de la nueva resena
+	    
+	    RETURN NEW;
+
+	ELSIF (TG_OP = 'DELETE') THEN
+		
+	    -- Obtener la suma total de las valoraciones y la cantidad de resenas para el id_local
+	    SELECT SUM(valoracion), COUNT(*)
+	    INTO total_valoraciones, cantidad_resenas
+	    FROM public."Reseña_local"
+	    WHERE id_local = OLD.id_local; -- NEW.id_local es el id_local de la nueva resena
+	    
+	    -- Calcular el promedio
+	    IF cantidad_resenas > 0 THEN
+	        promedio_actual := total_valoraciones / cantidad_resenas;
+	    ELSE
+	        promedio_actual := 0; -- Evitar división por cero si no hay resenas aún
+	    END IF;
+	    -- Actualizar el promedio en la tabla Local
+	    UPDATE public."Local"
+	    SET promedio = promedio_actual
+	    WHERE id_local = OLD.id_local; -- Actualizar solo la fila correspondiente al id_local de la vieja resena
+	    
+	    RETURN OLD;
+
+	ELSIF (TG_OP = 'UPDATE') THEN
+
+		-- Obtener la suma total de las valoraciones y la cantidad de resenas para el id_local
+	    SELECT SUM(valoracion), COUNT(*)
+	    INTO total_valoraciones, cantidad_resenas
+	    FROM public."Reseña_local"
+	    WHERE id_local = OLD.id_local; -- NEW.id_local es el id_local de la nueva resena
+	    
+	    -- Calcular el promedio
+	    IF cantidad_resenas > 0 THEN
+	        promedio_actual := total_valoraciones / cantidad_resenas;
+	    ELSE
+	        promedio_actual := 0; -- Evitar división por cero si no hay resenas aún
+	    END IF;
+	    -- Actualizar el promedio en la tabla Local
+	    UPDATE public."Local"
+	    SET promedio = promedio_actual
+	    WHERE id_local = OLD.id_local; -- Actualizar solo la fila correspondiente al id_local de la vieja resena
+
+		-- Obtener la suma total de las valoraciones y la cantidad de resenas para el id_local
+	    SELECT SUM(valoracion), COUNT(*)
+	    INTO total_valoraciones, cantidad_resenas
+	    FROM public."Reseña_local"
+	    WHERE id_local = NEW.id_local; -- NEW.id_local es el id_local de la nueva resena
+	    
+	    -- Calcular el promedio
+	    IF cantidad_resenas > 0 THEN
+	        promedio_actual := total_valoraciones / cantidad_resenas;
+	    ELSE
+	        promedio_actual := 0; -- Evitar división por cero si no hay resenas aún
+	    END IF;
+	    
+	    -- Actualizar el promedio en la tabla Local
+	    UPDATE public."Local"
+	    SET promedio = promedio_actual
+	    WHERE id_local = NEW.id_local; -- Actualizar solo la fila correspondiente al id_local de la nueva resena
+	    
+	    RETURN NEW;
+		
+	END IF;
+END;
+$BODY$;
+
+ALTER FUNCTION public.actualizar_promedio_local()
+    OWNER TO postgres;
+
+
+
+---------------TRIGGER---------------------
+
+create or replace trigger tr_promedio_local
+after insert or delete or update of id_local, valoracion on public."Reseña_local"
+for each row execute function actualizar_promedio_local();
+
+------------------------------------------------------------------------
+-- FUNCTION: public.actualizar_promedio_producto()
+
+-- DROP FUNCTION IF EXISTS public.actualizar_promedio_producto();
+
+CREATE OR REPLACE FUNCTION public.actualizar_promedio_producto()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+DECLARE
+    total_valoraciones double precision;
+    cantidad_resenas integer;
+    promedio_actual double precision;
+BEGIN
+	IF (TG_OP = 'INSERT') THEN
+	
+	    -- Obtener la suma total de las valoraciones y la cantidad de resenas para el id_local
+	    SELECT SUM(valoracion), COUNT(*)
+	    INTO total_valoraciones, cantidad_resenas
+	    FROM public."Reseña_Producto"
+	    WHERE id_producto = NEW.id_producto; -- NEW.id_local es el id_local de la nueva resena
+	    
+	    -- Calcular el promedio
+	    IF cantidad_resenas > 0 THEN
+	        promedio_actual := total_valoraciones / cantidad_resenas;
+	    ELSE
+	        promedio_actual := 0; -- Evitar división por cero si no hay resenas aún
+	    END IF;
+	    
+	    -- Actualizar el promedio en la tabla Local
+	    UPDATE public."Producto" pr
+	    SET promedio = promedio_actual
+	    WHERE pr.id = NEW.id_producto;-- Actualizar solo la fila correspondiente al id_local de la nueva resena
+	    
+	    RETURN NEW;
+
+	ELSIF (TG_OP = 'DELETE') THEN
+		
+	    -- Obtener la suma total de las valoraciones y la cantidad de resenas para el id_local
+	    SELECT SUM(valoracion), COUNT(*)
+	    INTO total_valoraciones, cantidad_resenas
+	    FROM public."Reseña_Producto"
+	    WHERE id_producto = OLD.id_producto; -- NEW.id_local es el id_local de la nueva resena
+	    
+	    -- Calcular el promedio
+	    IF cantidad_resenas > 0 THEN
+	        promedio_actual := total_valoraciones / cantidad_resenas;
+	    ELSE
+	        promedio_actual := 0; -- Evitar división por cero si no hay resenas aún
+	    END IF;
+	    -- Actualizar el promedio en la tabla Local
+	    UPDATE public."Producto" pr
+	    SET promedio = promedio_actual
+	    WHERE pr.id = OLD.id_producto; -- Actualizar solo la fila correspondiente al id_local de la vieja resena
+	    
+	    RETURN OLD;
+
+	ELSIF (TG_OP = 'UPDATE') THEN
+
+		-- Obtener la suma total de las valoraciones y la cantidad de resenas para el id_local
+	    SELECT SUM(valoracion), COUNT(*)
+	    INTO total_valoraciones, cantidad_resenas
+	    FROM public."Reseña_Producto"
+	    WHERE id_producto = OLD.id_producto; -- NEW.id_local es el id_local de la nueva resena
+	    
+	    -- Calcular el promedio
+	    IF cantidad_resenas > 0 THEN
+	        promedio_actual := total_valoraciones / cantidad_resenas;
+	    ELSE
+	        promedio_actual := 0; -- Evitar división por cero si no hay resenas aún
+	    END IF;
+	    -- Actualizar el promedio en la tabla Local
+	    UPDATE public."Producto" pr
+	    SET promedio = promedio_actual
+	    WHERE pr.id = OLD.id_producto; -- Actualizar solo la fila correspondiente al id_local de la vieja resena
+
+		-- Obtener la suma total de las valoraciones y la cantidad de resenas para el id_local
+	    SELECT SUM(valoracion), COUNT(*)
+	    INTO total_valoraciones, cantidad_resenas
+	    FROM public."Reseña_Producto"
+	    WHERE id_producto = NEW.id_producto;  -- NEW.id_local es el id_local de la nueva resena
+	    
+	    -- Calcular el promedio
+	    IF cantidad_resenas > 0 THEN
+	        promedio_actual := total_valoraciones / cantidad_resenas;
+	    ELSE
+	        promedio_actual := 0; -- Evitar división por cero si no hay resenas aún
+	    END IF;
+	    
+	    -- Actualizar el promedio en la tabla Local
+	    UPDATE public."Producto" pr
+	    SET promedio = promedio_actual
+	    WHERE pr.id = NEW.id_producto; -- Actualizar solo la fila correspondiente al id_local de la nueva resena
+	    
+	    RETURN NEW;
+		
+	END IF;
+END;
+$BODY$;
+
+ALTER FUNCTION public.actualizar_promedio_producto()
+    OWNER TO postgres;
+---------------TRIGGER---------------------
+
+create or replace trigger tr_promedio_producto
+after insert or delete or update of id_producto, valoracion on public."Reseña_Producto"
+for each row execute function actualizar_promedio_producto();
+----------------------FUNCIONES--------------------------------------------------
+-- FUNCTION: public.get_lugares_dado_producto(integer)
+
+-- DROP FUNCTION IF EXISTS public.get_lugares_dado_producto(integer);
+
+CREATE OR REPLACE FUNCTION public.get_lugares_dado_producto(
+	id_producto integer)
+    RETURNS TABLE(id_local integer, nombre character varying, latitud double precision, longitud double precision, red_social character varying, promedio double precision, direccion character varying) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        l.*
+    FROM vista_lugares vl join public."Local" l using (id_local)
+    WHERE id_producto = vl.id_prod;
+END;
+$BODY$;
+
+ALTER FUNCTION public.get_lugares_dado_producto(integer)
+    OWNER TO postgres;
+
+------------------------------------------------------------------------
+-- FUNCTION: public.get_productos_por_condicion(character varying)
+
+-- DROP FUNCTION IF EXISTS public.get_productos_por_condicion(character varying);
+
+CREATE OR REPLACE FUNCTION public.get_productos_por_condicion(
+	condicion character varying)
+    RETURNS TABLE(id_p integer, nickname character varying, foto character varying, tipo character, vegetariano boolean, vegano boolean, celiaco boolean, stock integer, precio double precision, ult_actualizacion date, promedio double precision, id_local integer) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        vp.id,
+        vp.name::character varying AS nickname,
+        vp.foto::character varying,
+        vp.tipo::character,
+        vp.vegetariano,
+        vp.vegano,
+        vp.celiaco,
+        vp.stock,
+        vp.precio,
+        vp.ult_actualizacion,
+        vp.promedio,
+        vp.id_local
+    FROM vista_productos_locales vp
+    WHERE ((condicion) LIKE '%' || 'vegetariano' || '%' AND vp.vegetariano is true) or 
+		((condicion) LIKE '%' || 'vegano' || '%' AND vp.vegano is true) or ((condicion) LIKE '%' || 'celiaco' || '%' AND vp.celiaco is true);
+END;
+$BODY$;
+
+ALTER FUNCTION public.get_productos_por_condicion(character varying)
+    OWNER TO postgres;
+
+------------------------------------------------------------------------
+-- FUNCTION: public.get_productos_por_nombre(character varying)
+
+-- DROP FUNCTION IF EXISTS public.get_productos_por_nombre(character varying);
+
+CREATE OR REPLACE FUNCTION public.get_productos_por_nombre(
+	nombre_producto character varying)
+    RETURNS TABLE(id_p integer, nickname character varying, foto character varying, tipo character, vegetariano boolean, vegano boolean, celiaco boolean, stock integer, precio double precision, ult_actualizacion date, promedio double precision, id_local integer) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        vp.id,
+        vp.name::character varying AS nickname,
+        vp.foto::character varying,
+        vp.tipo::character,
+        vp.vegetariano,
+        vp.vegano,
+        vp.celiaco,
+        vp.stock,
+        vp.precio,
+        vp.ult_actualizacion,
+        vp.promedio,
+        vp.id_local
+    FROM vista_productos_locales vp
+    WHERE lower(vp.name) LIKE  '%' || lower(nombre_producto) || '%';
+END;
+$BODY$;
+
+ALTER FUNCTION public.get_productos_por_nombre(character varying)
+    OWNER TO postgres;
+------------------------------------------------------------------------
