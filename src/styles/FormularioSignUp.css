@@ -1,0 +1,13 @@
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group.error input {
+    border-color: red;
+}
+
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-left: 10px;
+}
