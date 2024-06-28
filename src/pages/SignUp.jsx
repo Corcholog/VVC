@@ -13,8 +13,8 @@ function SignUp() {
     <div className="App">
       {
         !user.length > 0
-        ? <Formulario setUser={setUser} />
-        : <Home_Prueba user={user} setUser={setUser}/>
+          ? <Formulario setUser={setUser} />
+          : <Home_Prueba user={user} setUser={setUser}/>
       }
     </div>  
   </>

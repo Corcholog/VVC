@@ -19,9 +19,9 @@ export function Formulario({ setUser }) {
 
         // Validar campos obligatorios
         const nuevosErroresCampos = {
-            nombre: nombre === "",
-            contraseña: contraseña === "",
-            email: email === ""
+            nombre: nombre.trim() === "",
+            contraseña: contraseña.trim() === "",
+            email: email.trim() === ""
         };
         setErroresCampos(nuevosErroresCampos);
 
@@ -55,11 +55,11 @@ export function Formulario({ setUser }) {
             setError(true);
             console.error('Error en el signup:', error);
         }
-    }
+    };
 
     return (
         <section>
-            <h1>Signup</h1>
+            <h1>Sign Up</h1>
             <form className="Formulario" onSubmit={handleSubmit}>
                 <div className={`form-group ${erroresCampos.nombre ? 'error' : ''}`}>
                     <input 
@@ -78,6 +78,15 @@ export function Formulario({ setUser }) {
                         placeholder="Email"
                     />
                     {erroresCampos.email && <span className="error-message">* Campo obligatorio</span>}
+                </div>
+                <div className={`form-group ${erroresCampos.contraseña ? 'error' : ''}`}>
+                    <input 
+                        type="password" 
+                        value={contraseña}
+                        onChange={ev => setContraseña(ev.target.value)}
+                        placeholder="Contraseña"
+                    />
+                    {erroresCampos.contraseña && <span className="error-message">* Campo obligatorio</span>}
                 </div>
                 <div className="form-group">
                     <input 
@@ -103,18 +112,9 @@ export function Formulario({ setUser }) {
                         placeholder="Domicilio"
                     />
                 </div>
-                <div className={`form-group ${erroresCampos.contraseña ? 'error' : ''}`}>
-                    <input 
-                        type="password" 
-                        value={contraseña}
-                        onChange={ev => setContraseña(ev.target.value)}
-                        placeholder="Contraseña"
-                    />
-                    {erroresCampos.contraseña && <span className="error-message">* Campo obligatorio</span>}
-                </div>
-                <button>Registrarse</button>
+                <button className="Formulario_button">Registrarse</button>
             </form>
-            {error && <p>Hay errores en los campos obligatorios.</p>}
+            {error && <p className="Error">Hay errores en los campos obligatorios.</p>}
         </section>
     );
 }
