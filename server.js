@@ -10,10 +10,10 @@ const { Pool } = pg;
 const pool = new Pool({
   host: "localhost",
   port: 5432,
-  database: "Nueva_BD",  //CUANDO LO VAYAN A USAR HAY QUE CAMBIAR ESTO
+  database: "postgres",  //CUANDO LO VAYAN A USAR HAY QUE CAMBIAR ESTO
   user: "postgres",
-  password: "2001"    //CUANDO LO VAYAN A USAR HAY QUE CAMBIAR ESTO
-});
+  password: "Roca2851"    //CUANDO LO VAYAN A USAR HAY QUE CAMBIAR ESTO
+}); 
 
 const PORT = process.env.PORT || 3000;
 
@@ -95,10 +95,13 @@ app.post('/SignUp', async (req, res) => {
       client.release();
       return res.json({ success: false, message: 'Usuario ya existe con este email' });
     }
-
+     // Asegurar que fecha_nacimiento sea null si es una cadena vacía
+     const fechaNacimiento = fecha ? fecha : null;
+     const tel = telefono ? telefono : null;
+     const dir = direccion ? direccion : null;
     // Insertar nuevo usuario
     const insertUserQuery = 'INSERT INTO public."Usuario" (name, password, email, fecha_nacimiento, nmro_telefono, direccion) VALUES ($1, $2, $3, $4, $5, $6)';
-    await client.query(insertUserQuery, [nombre, contraseña, email, fecha, telefono, direccion]);
+    await client.query(insertUserQuery, [nombre, contraseña, email, fechaNacimiento, tel, dir]);
 
     // Liberar la conexión
     client.release();

@@ -29,7 +29,7 @@ export function Formulario({ setUser }) {
             if (data.success) {
                 setUser([data.nombreUsuario]);
                 alert('Login exitoso');
-                //Redireccionar a la página principal, por ejemplo:
+                // Redireccionar a la página principal, por ejemplo:
                 window.location.href = '/mapa';
             } else {
                 setError(true);
@@ -45,21 +45,27 @@ export function Formulario({ setUser }) {
         <section>
             <h1>Login</h1>
             <form className="Formulario" onSubmit={handleSubmit}>
-                <input 
-                    type="text"
-                    value={nombre} 
-                    onChange={ev => setNombre(ev.target.value)}
-                    placeholder="Usuario"
-                />
-                <input 
-                    type="password" 
-                    value={contraseña}
-                    onChange={ev => setContraseña(ev.target.value)}
-                    placeholder="Contraseña"
-                />
+                <div className={`form-group ${error && nombre === "" ? 'error' : ''}`}>
+                    <input 
+                        type="text"
+                        value={nombre} 
+                        onChange={ev => setNombre(ev.target.value)}
+                        placeholder="Email"
+                    />
+                    {error && nombre === "" && <span className="error-message">* Campo obligatorio</span>}
+                </div>
+                <div className={`form-group ${error && contraseña === "" ? 'error' : ''}`}>
+                    <input 
+                        type="password" 
+                        value={contraseña}
+                        onChange={ev => setContraseña(ev.target.value)}
+                        placeholder="Contraseña"
+                    />
+                    {error && contraseña === "" && <span className="error-message">* Campo obligatorio</span>}
+                </div>
                 <button>Iniciar sesión</button>
             </form>
-            {error && <p>Todos los campos son obligatorios o las credenciales son incorrectas</p>}
+            {error && <p  className="Error">Todos los campos son obligatorios o las credenciales son incorrectas</p>}
         </section>
     );
 }

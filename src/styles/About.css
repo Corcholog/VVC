@@ -1,0 +1,69 @@
+
+.quienes-somos {
+    padding: 50px 0;
+    background-color: #f8f8f8;
+    text-align: center;
+  }
+  
+  .quienes-somos-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .quienes-somos-title {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #6cbf84;
+    display: inline-block;
+    padding-bottom: 10px;
+  }
+  
+  .quienes-somos-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .quienes-somos-text {
+    max-width: 600px;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .quienes-somos-image {
+    max-width: 100%;
+  }
+  
+  .quienes-somos-image img {
+    max-width: 400px; /* Tamaño máximo deseado */
+    width: 100%; /* Ajuste al 100% del ancho del contenedor */
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .redes-sociales {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .icono-red-social {
+    font-size: 2rem; /* Tamaño del icono */
+    margin: 0 10px; /* Espaciado entre los iconos */
+    color: #333; /* Color del icono */
+    transition: color 0.3s;
+  }
+  
+  .icono-red-social:hover {
+    color: #0073e6; /* Color del icono al pasar el ratón por encima */
+  }
+  
+  #encabezadito {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  

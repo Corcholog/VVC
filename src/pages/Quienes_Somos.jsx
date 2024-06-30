@@ -2,6 +2,7 @@ import React from 'react';
 import { FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
 import AboutNosotros from "../components/About";
 import Navbar from '../components/Nav';
+import "../styles/QuienesSomos.css"
 
 function Quienes_Somos() {
   return (
