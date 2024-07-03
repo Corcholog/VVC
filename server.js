@@ -1,7 +1,7 @@
 import express from 'express';
 import pg from 'pg';
-import cors from 'cors'; // Importar el middleware cors
-import bodyParser from 'body-parser'; // Importar el middleware body-parser
+import cors from 'cors';
+import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
 
 const app = express();
@@ -11,12 +11,13 @@ const { Pool } = pg;
 const pool = new Pool({
   host: "localhost",
   port: 5432,
-  database: "postgres",  //CUANDO LO VAYAN A USAR HAY QUE CAMBIAR ESTO
+  database: "postgres",
   user: "postgres",
-  password: "2108"    //CUANDO LO VAYAN A USAR HAY QUE CAMBIAR ESTO
-}); 
+  password: "2108"
+});
 
 const PORT = process.env.PORT || 3000;
+const SECRET_KEY = 'your_secret_key';
 
 // Usar el middleware cors y body-parser
 app.use(cors());
@@ -29,18 +30,11 @@ app.get('/', (req, res) => {
 // Endpoint para obtener productos por nombre
 app.post('/getProducts', async (req, res) => {
   const { producto, vegetariano, vegano, celiaco, rating, ciudad } = req.body;
-  console.log(producto, vegetariano, vegano, celiaco, rating, ciudad);
   try {
-    // Conectar al cliente PostgreSQL
     const client = await pool.connect();
-
-    // Llamar a la función y obtener el resultado
     const query = 'SELECT * FROM public.get_productos_por_nombre($1, $2, $3, $4, $5, $6)';
     const result = await client.query(query, [producto, vegetariano, vegano, celiaco, rating, ciudad]);
-    // Liberar la conexión
     client.release();
-
-    // Enviar los resultados como respuesta JSON
     res.json(result.rows);
   } catch (error) {
     console.error('Error al obtener los productos:', error);
@@ -48,33 +42,53 @@ app.post('/getProducts', async (req, res) => {
   }
 });
 
+app.post('/insertReview', async (req, res) => {
+  const { user, producto, valoracion, comentario } = req.body;
+  
+  try {
+    const client = await pool.connect();
+    
+    // Obtener el id del usuario basado en el nombre
+    const query_user_id = 'SELECT u.id FROM public."Usuario" u WHERE u.name = $1';
+    const result_id = await client.query(query_user_id, [user]);
+
+    // Asegúrate de que obtuviste un resultado
+    if (result_id.rows.length === 0) {
+      client.release();
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    
+    const user_id = result_id.rows[0].id;
+
+    // Insertar la reseña usando el id del usuario
+    const query = 'INSERT INTO public."Reseña_Producto" (id_user, id_producto, valoracion, comentario) VALUES ($1, $2, $3, $4)';
+    await client.query(query, [user_id, producto, valoracion, comentario]);
+
+    client.release();
+    res.status(201).json({ message: 'Reseña enviada correctamente' });
+  } catch (error) {
+    console.error('Error enviando la reseña:', error);
+    res.status(500).json({ error: 'Error enviando la reseña' });
+  }
+});
 
 // Endpoint para login
 app.post('/login', async (req, res) => {
   const { nombre, contraseña } = req.body;
 
   try {
-    // Conectar al cliente PostgreSQL
     const client = await pool.connect();
-
-    // Consulta para verificar las credenciales del usuario
     const query = 'SELECT * FROM public."Usuario" WHERE email = $1 AND password = $2';
-    const result = await client.query(query, [nombre, contraseña]);  //Recordar que el nombre es el email
+    const result = await client.query(query, [nombre, contraseña]);
 
-    // Liberar la conexión
     client.release();
 
     if (result.rows.length > 0) {
-      // Si se encuentra el usuario, responder con éxito
       const user = result.rows[0];
-      const nombreUsuario= user.name;
-      const jwtToken = jwt.sign(
-        {id: nombreUsuario}, 
-        'boca'
-      );
+      const nombreUsuario = user.name;
+      const jwtToken = jwt.sign({ id: nombreUsuario }, SECRET_KEY, { expiresIn: '1h' });
       res.json({ success: true, token: jwtToken });
     } else {
-      // Si no se encuentra el usuario, responder con error
       res.json({ success: false });
     }
   } catch (error) {
@@ -83,35 +97,70 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Middleware para verificar JWT
+const verifyToken = (req, res, next) => {
+  const token = req.headers['authorization'];
+  if (!token) return res.status(403).json({ message: 'No token provided' });
+
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if (err) return res.status(500).json({ message: 'Failed to authenticate token' });
+
+    req.user = decoded;
+    next();
+  });
+};
+
+// Endpoint protegido de ejemplo
+app.get('/api/protected', verifyToken, (req, res) => {
+  res.json({ message: `Hello ${req.user.id}` });
+});
+
+app.post('/getReviews', async (req, res) => {
+  const {producto} = req.body;
+  console.log(producto);
+  try {
+    const client = await pool.connect();
+    const getReviewsQuery = 'SELECT u.name as usuario, rp.comentario as comentario, rp.valoracion as valoracion FROM public."Reseña_Producto" rp JOIN public."Usuario" u on rp.id_user = u.id WHERE rp.id_producto = $1';
+    const reviews = await client.query(getReviewsQuery, [producto.id]);
+
+    res.json(reviews.rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Error obteniendo reseñas' });
+  }
+});
+
+
 // Endpoint para registrar usuario
 app.post('/SignUp', async (req, res) => {
   const { nombre, contraseña, email, fecha, telefono, direccion } = req.body;
 
   try {
-    // Conectar al cliente PostgreSQL
     const client = await pool.connect();
-
-    // Verificar si el usuario ya existe
     const checkUserQuery = 'SELECT * FROM public."Usuario" WHERE email = $1';
     const checkUserResult = await client.query(checkUserQuery, [email]);
 
     if (checkUserResult.rows.length > 0) {
-      // Si el usuario ya existe, responder con error
       client.release();
       return res.json({ success: false, message: 'Usuario ya existe con este email' });
     }
-     // Asegurar que fecha_nacimiento sea null si es una cadena vacía
-     const fechaNacimiento = fecha ? fecha : null;
-     const tel = telefono ? telefono : null;
-     const dir = direccion ? direccion : null;
-    // Insertar nuevo usuario
+
+    const fechaNacimiento = fecha ? fecha : null;
+    const tel = telefono ? telefono : null;
+    const dir = direccion ? direccion : null;
     const insertUserQuery = 'INSERT INTO public."Usuario" (name, password, email, fecha_nacimiento, nmro_telefono, direccion) VALUES ($1, $2, $3, $4, $5, $6)';
+
     await client.query(insertUserQuery, [nombre, contraseña, email, fechaNacimiento, tel, dir]);
 
-    // Liberar la conexión
-    client.release();
+    const query_user_id = 'SELECT u.id FROM public."Usuario" u WHERE u.name = $1';
+    const result_id = await client.query(query_user_id, [nombre]);
+    
+    const user_id = result_id.rows[0].id;
 
-    // Responder con éxito
+
+    const insertConsumerQuery = 'INSERT INTO public."Usuario_Consumidor" VALUES ($1, true, false, false)';
+    await client.query(insertConsumerQuery, [user_id]);
+
+    client.release();
     res.json({ success: true, message: 'Usuario registrado exitosamente' });
   } catch (error) {
     console.error('Error en el registro:', error);

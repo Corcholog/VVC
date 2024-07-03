@@ -1,28 +1,36 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import useIsAuthenticated from 'react-auth-kit/hooks/useIsAuthenticated';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
-  const isAuthenticated = useIsAuthenticated(); // Usamos useIsAuthenticated en lugar de useAuth
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    navigate('/login');
+  };
 
   return (
     <nav id="nav_g">
       <Link to="/Mapa" id="Mapa" className="nav_item_l"> VVC </Link>
       {isAuthenticated ? (
         <>
-          {/* Mostrar opciones cuando el usuario está autenticado */}
           <Link to="/perfil" className="nav_item_l"> Perfil </Link>
-          <button onClick={handleLogout} className="nav_item_l"> Cerrar sesión </button>
+          <button onClick={handleLogout} className="nav_item_l"> Log out </button>
         </>
       ) : (
         <>
-          {/* Mostrar opciones cuando el usuario no está autenticado */}
           <Link to="/login" className="nav_item_l"> Log in </Link>
           <Link to="/signup" className="nav_item_l"> Sign up </Link>
         </>
       )}
       <Link to="/about" className="nav_item_l"> ¿Quiénes somos? </Link>
-      {/* Otras opciones de navegación */}
       <Link to="/" className="nav_item_r"> 🔎 </Link>
       <Link to="/" className="nav_item_r"> 🔎 </Link>
       <Link to="/" className="nav_item_r"> 🔎 </Link>
