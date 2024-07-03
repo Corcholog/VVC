@@ -1,12 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import ProdList from "./ProdList";
-
-async function getProducts(producto) {
-    const url = `http://localhost:3000/getProducts?name=${encodeURIComponent(producto)}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    return data;
-}
 
 
 export default function Products( {producto, map}) {

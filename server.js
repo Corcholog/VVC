@@ -12,7 +12,7 @@ const pool = new Pool({
   port: 5432,
   database: "postgres",  //CUANDO LO VAYAN A USAR HAY QUE CAMBIAR ESTO
   user: "postgres",
-  password: "Roca2851"    //CUANDO LO VAYAN A USAR HAY QUE CAMBIAR ESTO
+  password: "2108"    //CUANDO LO VAYAN A USAR HAY QUE CAMBIAR ESTO
 }); 
 
 const PORT = process.env.PORT || 3000;
@@ -26,17 +26,16 @@ app.get('/', (req, res) => {
 });
 
 // Endpoint para obtener productos por nombre
-app.get('/getProducts', async (req, res) => {
-  const { name } = req.query; // Obtener el parámetro 'name' de la consulta
-
+app.post('/getProducts', async (req, res) => {
+  const { producto, vegetariano, vegano, celiaco, rating, ciudad } = req.body;
+  console.log(producto, vegetariano, vegano, celiaco, rating, ciudad);
   try {
     // Conectar al cliente PostgreSQL
     const client = await pool.connect();
 
     // Llamar a la función y obtener el resultado
-    const query = 'SELECT * FROM public.get_productos_por_nombre($1)';
-    const result = await client.query(query, [name]);
-
+    const query = 'SELECT * FROM public.get_productos_por_nombre($1, $2, $3, $4, $5, $6)';
+    const result = await client.query(query, [producto, vegetariano, vegano, celiaco, rating, ciudad]);
     // Liberar la conexión
     client.release();
 
@@ -47,6 +46,7 @@ app.get('/getProducts', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los productos' });
   }
 });
+
 
 // Endpoint para login
 app.post('/login', async (req, res) => {

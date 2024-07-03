@@ -70,11 +70,11 @@ function ProdList({ data, map }) {
       {uniqueProductsArray.map((producto, indice) => (
         <li key={indice} className="elem_prod_li">
           <strong>{producto.nickname}</strong> - ${producto.precio}
-          <img className="imagen" src={"../public/img/" + producto.foto} alt={`Imagen de ${producto.nickname}`} />
+          <img className="imagen" src={"../img/" + producto.foto} alt={`Imagen de ${producto.nickname}`} />
           <strong> Puntacion: {producto.promedio} ★ </strong>
           <Button locales={localesMap.get(producto.id)} map={map} />
           <button onClick={() => openPopup(producto)}>Ver reseña</button>
-
+          
           {/* Popup de reseña */}
           {showPopup && (
             <div className="popup">

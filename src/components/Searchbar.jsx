@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Products from "./Products"; // Importa el componente Products
 import { getProducts } from "./scripts"; // Importa la función para obtener productos
+import Filter from "./Filter";
 import mapboxgl from 'mapbox-gl';
 
 function createMarker(long, lat, map) {
@@ -32,6 +33,13 @@ export default function Searchbar({ map }) {
   const [query, setQuery] = useState(""); // Estado para el nombre del producto buscado
   const [productos, setProductos] = useState([]); // Estado para los productos encontrados
   const [showProducts, setShowProducts] = useState(false); // Estado para controlar si mostrar el componente Products
+  const [filters, setFilters] = useState({  // Estado para los filtros
+    vegetariano: false,
+    vegano: false,
+    celiaco: false,
+    rating: false,
+    ciudad: "", // Estado para la ciudad seleccionada
+  });
   const markersRef = React.useRef([]); // Referencia a los marcadores actuales
 
   // Función para manejar el envío del formulario
@@ -42,7 +50,9 @@ export default function Searchbar({ map }) {
         markersRef.current.forEach((m) => m.remove());
         markersRef.current = [];
       if (query !== "") {
-        const data = await getProducts(query); // Llama a la función para obtener productos
+        
+        const data = await getProducts(query, filters.vegetariano, filters.vegano, filters.celiaco, filters.rating, filters.ciudad);
+        console.log(data);
         setProductos(data); // Actualiza el estado con los productos obtenidos
         setShowProducts(true); // Muestra el componente Products después de enviar el formulario
 
@@ -74,9 +84,17 @@ export default function Searchbar({ map }) {
     }
   };
 
+  // Función para manejar cambios en los filtros desde Filter.jsx
+  const handleFilterChange = (name, value) => {
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
   return (
     <div>
-      <h3 style={{ textAlign: "center", width: "70%" }}>Buscar producto</h3>
+      
       <form id="searchForm" autoComplete="off" onSubmit={handleSubmit}>
         <input
           type="text"
@@ -88,6 +106,7 @@ export default function Searchbar({ map }) {
         />
         <button type="submit">Buscar</button>
       </form>
+      <Filter filters={filters} onFilterChange={handleFilterChange} map={map}/> {/* Renderiza el componente Filter y pasa los filtros y la función de cambio de filtro */}
       {showProducts && <Products producto={productos} map={map}/>} {/* Renderiza el componente Products solo si showProducts es true */}
     </div>
   );

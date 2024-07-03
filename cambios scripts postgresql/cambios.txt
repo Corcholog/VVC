@@ -4,7 +4,7 @@
 
 CREATE OR REPLACE FUNCTION public.get_productos_por_nombre(
 	nombre_producto character varying)
-    RETURNS TABLE(id_p integer, nickname character varying, foto character varying, tipo character, vegetariano boolean, vegano boolean, celiaco boolean, stock integer, precio double precision, ult_actualizacion date, promedio double precision, id_local integer) 
+    RETURNS TABLE(id_p integer, nickname character varying, foto character varying, tipo "char", vegetariano boolean, vegano boolean, celiaco boolean, stock integer, precio double precision, ult_actualizacion date, promedio double precision, id_local integer, nombre_local character varying, latitud double precision, longitud double precision, red_social character varying, local_promedio double precision, local_direccion character varying) 
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE
@@ -14,29 +14,118 @@ AS $BODY$
 BEGIN
     RETURN QUERY
     SELECT 
-        vp.id,
-        vp.name::character varying AS nickname,
-        vp.foto::character varying,
-        vp.tipo::character,
-        vp.vegetariano,
-        vp.vegano,
-        vp.celiaco,
-        vp.stock,
-        vp.precio,
-        vp.ult_actualizacion,
-        vp.promedio,
-        vp.id_local
+        vp.*
     FROM vista_productos_locales vp
-    WHERE lower(vp.name) LIKE  '%' || lower(nombre_producto) || '%';
+    WHERE lower(vp.name) LIKE lower(nombre_producto) || '%';
 END;
 $BODY$;
 
 ALTER FUNCTION public.get_productos_por_nombre(character varying)
     OWNER TO postgres;
 
+-----------------------------------------------------------------
+
+ALTER TABLE public."Local" ADD ciudad varchar(200) null;
+SELECT * FROM public."Local";
+UPDATE public."Local" SET ciudad = 'tandil';
+SELECT * FROM public."Producto";
+SELECT *  FROM public."Usuario";
+-------------------------------------------------------------------
+
+-- FUNCTION: public.get_productos_por_nombre(character varying)
+
+DROP FUNCTION IF EXISTS public.get_productos_por_nombre(character varying, boolean, boolean, boolean, boolean, varchar(200));
+
+CREATE OR REPLACE FUNCTION public.get_productos_por_nombre(
+    nombre_producto character varying,
+    filtro_vegetariano boolean,
+    filtro_vegano boolean,
+    filtro_celiaco boolean,
+    filtro_rating boolean,
+	filtro_ciudad varchar(200)
+)
+RETURNS TABLE(
+    id_p integer, 
+    nickname character varying, 
+    foto character varying, 
+    tipo "char", 
+    vegetariano boolean, 
+    vegano boolean, 
+    celiaco boolean, 
+    stock integer, 
+    precio double precision, 
+    ult_actualizacion date, 
+    promedio double precision, 
+    id_local integer, 
+    nombre_local character varying, 
+    latitud double precision, 
+    longitud double precision, 
+    red_social character varying, 
+    local_promedio double precision, 
+    local_direccion character varying,
+	local_ciudad varchar(200)
+) 
+LANGUAGE 'plpgsql'
+COST 100
+VOLATILE PARALLEL UNSAFE
+ROWS 1000
+
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        vp.*
+    FROM 
+        vista_productos_locales vp
+    WHERE 
+        (lower(vp.name) LIKE lower(nombre_producto) || '%')
+        AND (CASE 
+            WHEN filtro_vegetariano THEN vp.vegetariano
+            ELSE TRUE
+        END)
+        AND (CASE 
+            WHEN filtro_vegano THEN vp.vegano
+            ELSE TRUE
+        END)
+        AND (CASE 
+            WHEN filtro_celiaco THEN vp.celiaco
+            ELSE TRUE
+        END)
+        AND (CASE 
+            WHEN filtro_ciudad <> '' THEN vp.ciudad = filtro_ciudad
+            ELSE TRUE
+        END)
+    ORDER BY 
+        CASE WHEN filtro_rating THEN vp.promedio END DESC, 
+        vp.id;  -- Ordenar por id_p si rating es FALSE para mantener un orden consistente
+END;
+$BODY$;
+
+ALTER FUNCTION public.get_productos_por_nombre(character varying, boolean, boolean, boolean, boolean, varchar(200))
+    OWNER TO postgres;
+---------------------------------------------------------------------------------
+
+SELECT * FROM public.get_productos_por_nombre('e', true, true, false, true, 'tandil');
+
+
+UPDATE public."Producto" SET celiaco = true WHERE id = 7;
+UPDATE public."Producto" SET celiaco = false WHERE id = 8;
+
+
+
+
+
+
+
+
+-----------------------------------------
+
+
+
+
 -- View: public.vista_productos_locales
 
-DROP VIEW public.vista_productos_locales;
+-- DROP VIEW public.vista_productos_locales;
 
 CREATE OR REPLACE VIEW public.vista_productos_locales
  AS
@@ -50,10 +139,18 @@ CREATE OR REPLACE VIEW public.vista_productos_locales
     p.stock,
     p.precio,
     p.ult_actualizacion,
-    p.promedio as prod_prom,
-    lv.*
+    p.promedio AS prod_prom,
+    lv.id_local,
+    lv.nombre,
+    lv.latitud,
+    lv.longitud,
+    lv.red_social,
+    lv.promedio,
+    lv.direccion,
+	lv.ciudad
    FROM "Producto" p
-     JOIN "Producto_Artesanal" pa ON p.id = pa.id_prod JOIN "Local" lv ON lv.id_local = pa.id_local
+     JOIN "Producto_Artesanal" pa ON p.id = pa.id_prod
+     JOIN "Local" lv ON lv.id_local = pa.id_local
 UNION ALL
  SELECT p.id,
     p.name,
@@ -65,17 +162,24 @@ UNION ALL
     p.stock,
     p.precio,
     p.ult_actualizacion,
-    p.promedio as prod_prom,
-    l.*
+    p.promedio AS prod_prom,
+    l.id_local,
+    l.nombre,
+    l.latitud,
+    l.longitud,
+    l.red_social,
+    l.promedio,
+    l.direccion,
+	l.ciudad
    FROM "Producto" p
      JOIN "Producto_manufacturado" pm ON p.id = pm.id_prod
      JOIN "Prod_m_local" pml ON pm.id_prod = pml.id_prod
-	 JOIN "Local" l ON l.id_local = pml.id_local;
+     JOIN "Local" l ON l.id_local = pml.id_local;
 
 ALTER TABLE public.vista_productos_locales
     OWNER TO postgres;
 
-SELECT * FROM vista_productos_locales;
+
 
 
 
