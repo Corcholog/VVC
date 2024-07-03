@@ -50,7 +50,6 @@ export default function Searchbar({ map }) {
         markersRef.current.forEach((m) => m.remove());
         markersRef.current = [];
       if (query !== "") {
-        
         const data = await getProducts(query, filters.vegetariano, filters.vegano, filters.celiaco, filters.rating, filters.ciudad);
         console.log(data);
         setProductos(data); // Actualiza el estado con los productos obtenidos

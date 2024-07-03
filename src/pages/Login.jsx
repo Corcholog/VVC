@@ -3,6 +3,7 @@ import { Home_Prueba } from "../components/Home_Prueba";
 import { useState } from "react";
 import Navbar from '../components/Nav';
 
+
 function Login() {
 
     const [user, setUser] = useState([])

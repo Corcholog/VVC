@@ -2,6 +2,7 @@ import express from 'express';
 import pg from 'pg';
 import cors from 'cors'; // Importar el middleware cors
 import bodyParser from 'body-parser'; // Importar el middleware body-parser
+import jwt from 'jsonwebtoken';
 
 const app = express();
 
@@ -66,8 +67,12 @@ app.post('/login', async (req, res) => {
     if (result.rows.length > 0) {
       // Si se encuentra el usuario, responder con éxito
       const user = result.rows[0];
-      const NombreUsuario= user.name;
-      res.json({ success: true, nombreUsuario: NombreUsuario });
+      const nombreUsuario= user.name;
+      const jwtToken = jwt.sign(
+        {id: nombreUsuario}, 
+        'boca'
+      );
+      res.json({ success: true, token: jwtToken });
     } else {
       // Si no se encuentra el usuario, responder con error
       res.json({ success: false });

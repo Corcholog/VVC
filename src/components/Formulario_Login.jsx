@@ -1,9 +1,11 @@
-import { useState } from "react";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function Formulario({ setUser }) {
     const [nombre, setNombre] = useState("");
     const [contraseña, setContraseña] = useState("");
     const [error, setError] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (ev) => {
         ev.preventDefault();
@@ -24,17 +26,19 @@ export function Formulario({ setUser }) {
                 body: JSON.stringify({ nombre, contraseña }),
             });
 
-            const data = await response.json();
-
-            if (data.success) {
-                setUser([data.nombreUsuario]);
-                alert('Login exitoso');
-                // Redireccionar a la página principal, por ejemplo:
-                window.location.href = '/mapa';
-            } else {
-                setError(true);
-                alert('Usuario o contraseña incorrectos');
+            if (!response.ok) {
+                throw new Error('Usuario o contraseña incorrectos');
             }
+
+            const data = await response.json();
+            console.log(data);
+
+            setUser(data.token.id);
+            localStorage.setItem('token', data.token); // Almacena el token JWT en localStorage
+
+            alert('Login exitoso');
+            // Redirecciona a la página principal utilizando useNavigate
+            navigate('/mapa');
         } catch (error) {
             setError(true);
             console.error('Error en el login:', error);
@@ -63,9 +67,9 @@ export function Formulario({ setUser }) {
                     />
                     {error && contraseña === "" && <span className="error-message">* Campo obligatorio</span>}
                 </div>
-                <button>Iniciar sesión</button>
+                <button type="submit">Iniciar sesión</button>
             </form>
-            {error && <p  className="Error">Todos los campos son obligatorios o las credenciales son incorrectas</p>}
+            {error && <p className="Error">Usuario o contraseña incorrectos</p>}
         </section>
     );
 }
