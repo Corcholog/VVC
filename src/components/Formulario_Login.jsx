@@ -51,7 +51,7 @@ export function Formulario({ setUser }) {
             <form className="Formulario" onSubmit={handleSubmit}>
                 <div className={`form-group ${error && nombre === "" ? 'error' : ''}`}>
                     <input 
-                        type="text"
+                        type="email"
                         value={nombre} 
                         onChange={ev => setNombre(ev.target.value)}
                         placeholder="Email"

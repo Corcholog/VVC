@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Button from "./Button";
-import Review from "./Review";
-import FormReseña from "./FormReseña";
+import ProductItem from "./ProductItem";
 
 function ProdList({ data, map }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
-  const [showPopupReseña, setShowPopupReseña] = useState(false);
-  const [reviewData, setReviewData] = useState([]);
-  const [currentProduct, setCurrentProduct] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -51,84 +46,16 @@ function ProdList({ data, map }) {
   // Convertir el objeto de productos únicos en un array para mapearlo
   const uniqueProductsArray = Object.values(uniqueProducts);
 
-  const openPopupReseña = (producto) => {
-    setShowPopupReseña(true);
-  }
-
-  const closePopupReseña = () => {
-    setShowPopupReseña(false);
-    setCurrentProduct(null);
-  }
-
-  // Función para abrir el popup y mostrar los datos de la reseña
-  const openPopup = async (producto) => {
-    try {
-      const response = await fetch("http://localhost:3000/getReviews", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ producto }),
-      });
-
-      const data = await response.json();
-      console.log(data);
-      setReviewData(data);
-
-      // Cerrar el popup al enviar la reseña correctamente
-      closePopupReseña();
-
-    } catch (error) {
-      setError(true);
-      console.error("Error obteniendo las reseñas:", error);
-    }
-    setShowPopup(true);
-  };
-
-  // Función para cerrar el popup
-  const closePopup = () => {
-    setShowPopup(false);
-  };
-
   return (
     <ul id="lista_prod">
       {uniqueProductsArray.map((producto, indice) => (
-        <li key={indice} className="elem_prod_li">
-          <strong>{producto.nickname}</strong> - ${producto.precio}
-          <img
-            className="imagen"
-            src={"../img/" + producto.foto}
-            alt={`Imagen de ${producto.nickname}`}
-          />
-          <strong> Puntacion: {producto.promedio} ★ </strong>
-          <Button locales={localesMap.get(producto.id)} map={map} />
-          <button onClick={() => openPopup(producto)}>Ver reseñas</button>
-          {isAuthenticated ? (
-            <>
-              <button onClick={() => openPopupReseña()}>Hacer reseña</button>
-              {showPopupReseña && (
-                <div className="popup">
-                  <FormReseña producto={producto.id} closePopupReseña={closePopupReseña} />
-                  <button onClick={closePopupReseña}>Cerrar</button>
-                </div>
-              )}
-            </>
-          ) : null}
-          {// Meter un componente Reseña y estilarlo
-          showPopup && (
-            <div className="popup">
-              <h3>Reseñas de {producto.nickname}</h3>
-              {reviewData.map((review, index) => (
-                <div key={index}> 
-                  <p><strong>Usuario:</strong> {review.usuario}</p>
-                  <p><strong>Comentario:</strong> {review.comentario}</p>
-                  <p><strong>Valoracion:</strong> {review.valoracion}</p>
-                </div>
-              ))}
-              <button onClick={closePopup}>Cerrar</button>
-            </div>
-          )}
-        </li>
+        <ProductItem
+          key={indice}
+          producto={producto}
+          map={map}
+          isAuthenticated={isAuthenticated}
+          locales={localesMap.get(producto.id_p)} // Pasar localesMap al ProductItem
+        />
       ))}
     </ul>
   );
