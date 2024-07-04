@@ -41,10 +41,12 @@ function ProdList({ data, map }) {
       promedio: prod.local_promedio,
       local_direccion: prod.local_direccion,
     });
+    console.log(localesMap.get(prod.id_p));
   });
 
   // Convertir el objeto de productos únicos en un array para mapearlo
   const uniqueProductsArray = Object.values(uniqueProducts);
+  console.log(uniqueProductsArray);
 
   return (
     <ul id="lista_prod">
@@ -54,7 +56,7 @@ function ProdList({ data, map }) {
           producto={producto}
           map={map}
           isAuthenticated={isAuthenticated}
-          locales={localesMap.get(producto.id_p)} // Pasar localesMap al ProductItem
+          locales={localesMap.get(producto.id)} // Pasar localesMap al ProductItem
         />
       ))}
     </ul>

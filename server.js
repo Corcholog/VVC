@@ -122,7 +122,6 @@ app.post('/getReviews', async (req, res) => {
     const client = await pool.connect();
     const getReviewsQuery = 'SELECT u.name as usuario, rp.comentario as comentario, rp.valoracion as valoracion FROM public."Reseña_Producto" rp JOIN public."Usuario" u on rp.id_user = u.id WHERE rp.id_producto = $1';
     const reviews = await client.query(getReviewsQuery, [producto]);
-    console.log(reviews.rows);
     res.json(reviews.rows);
   } catch (error) {
     res.status(500).json({ error: 'Error obteniendo reseñas' });
