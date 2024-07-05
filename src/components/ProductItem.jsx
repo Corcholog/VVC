@@ -41,7 +41,7 @@ function ProductItem({ producto, map, isAuthenticated, locales }) {
 
   return (
     <li className="elem_prod_li">
-      <strong>{producto.nickname}</strong> - ${producto.precio}
+      <strong>{producto.nickname}</strong>
       <img
         className="imagen"
         src={"../img/" + producto.foto}

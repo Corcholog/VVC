@@ -21,7 +21,6 @@ export default function Navbar() {
       <Link to="/Mapa" id="Mapa" className="nav_item_l"> VVC </Link>
       {isAuthenticated ? (
         <>
-          <Link to="/perfil" className="nav_item_l"> Perfil </Link>
           <button onClick={handleLogout} className="nav_item_l"> Log out </button>
         </>
       ) : (
