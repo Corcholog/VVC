@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Nav from '../components/Nav';
 import Searchbar from '../components/Searchbar';
-import Products from '../components/Products';
 
 function MapaComponent() {
   const [map, setMap] = useState(null); // Estado para almacenar el mapa
 
   useEffect(() => {
     // Configuración inicial del mapa
-    mapboxgl.accessToken = 'pk.eyJ1IjoiY29ya2xvZyIsImEiOiJjbHhxY2hrYTYwenRtMmtvZThlZXQ5anpiIn0.kHrU6lbo-ik_Tx7F4WAv-Q';
+    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+
     const initializedMap = new mapboxgl.Map({
       container: 'map', // container ID
       style: 'mapbox://styles/mapbox/streets-v12', // style URL
